@@ -1,4 +1,7 @@
 from boxsdk import Client, OAuth2
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def authenticate_box(client_id, client_secret, developer_token):
     """Authenticate with Box."""
