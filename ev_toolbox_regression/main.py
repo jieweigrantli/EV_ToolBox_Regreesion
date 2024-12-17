@@ -4,6 +4,7 @@ from box_utils import download_file_from_box, upload_file_to_box
 from regression_utils import perform_regression
 from token_manager import get_oauth2_client
 from data_utils import combine_datasets
+from boxsdk import Client
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -11,26 +12,35 @@ load_dotenv()
 def main():
     # Authenticate with Box using OAuth2 client
     oauth2 = get_oauth2_client()
-    client = oauth2.client()
+    client = Client(oauth2)
 
-    # Parse folder-file pairs from environment variables
-    folder_file_pairs = os.getenv('BOX_FOLDER_FILE_IDS').split(',')
-    folder_file_pairs = [pair.split(':') for pair in folder_file_pairs]  # Split into [folder_id, file_id]
+    try:
+        # Verify authentication
+        user = client.user().get()
+        print(f"Authenticated User: {user.name} (ID: {user.id})")
+    except Exception as e:
+        print(f"Authentication failed: {e}")
+
+    # Parse file IDs from environment variables
+    file_id = os.getenv('BOX_FILE_IDS', '').split(',')
+    if not file_id:
+        print("No file IDs provided in BOX_FILE_IDS.")
+        return
 
     # Output folder ID
     output_folder_id = os.getenv('BOX_OUTPUT_FOLDER_ID')
 
     # Temporary local file paths
-    local_file_paths = [f"data/input_file_{i}.csv" for i in range(len(folder_file_pairs))]
+    local_file_paths = [f"data/input_file_{i}.csv" for i in range(len(file_id))]
     combined_csv_path = 'data/combined_input.csv'
-    local_xlsx_path = 'data/output.xlsx'
+    local_xlsx_path = 'data/reg_coefficients.csv'
 
     # Columns for regression
     target_col = os.getenv('TARGET_COLUMN')  # Target column from .env
     feature_cols = os.getenv('FEATURE_COLUMNS').split(',')  # Comma-separated feature columns
 
     # Step 1: Download files from Box
-    for (folder_id, file_id), local_path in zip(folder_file_pairs, local_file_paths):
+    for file_id, local_path in zip(file_id, local_file_paths):
         download_file_from_box(client, file_id, local_path)
 
     # Step 2: Combine datasets into a single file

@@ -1,0 +1,15 @@
+from token_manager import get_oauth2_client
+from boxsdk import Client
+
+def test_token_manager():
+    oauth2 = get_oauth2_client()
+    client = Client(oauth2)
+
+    try:
+        user = client.user().get()
+        print(f"Authenticated as: {user.name} (ID: {user.id})")
+    except Exception as e:
+        print(f"Authentication failed: {e}")
+
+if __name__ == "__main__":
+    test_token_manager()

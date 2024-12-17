@@ -1,11 +1,12 @@
-from boxsdk import Client, OAuth2
+from token_manager import get_oauth2_client
+from boxsdk import Client
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def authenticate_box(client_id, client_secret, developer_token):
     """Authenticate with Box."""
-    oauth2 = OAuth2(client_id, client_secret, access_token=developer_token)
+    oauth2 = get_oauth2_client()
     client = Client(oauth2)
     return client
 
@@ -28,7 +29,7 @@ def download_file_from_box(client, file_id, download_path):
         print(f"File downloaded successfully: {download_path}")
         return download_path
     except Exception as e:
-        print(f"Error downloading file: {e}")
+        print(f"Error downloading file (ID: {file_id}): {e}")
         raise
 
 def upload_file_to_box(client, folder_id, file_path):

@@ -26,8 +26,24 @@ def get_oauth2_client():
 
     # Callback function to store new tokens
     def store_tokens(new_access_token, new_refresh_token):
+        print(f"New Access Token: {new_access_token}")
+        print(f"New Refresh Token: {new_refresh_token}")
         os.environ['BOX_ACCESS_TOKEN'] = new_access_token
         os.environ['BOX_REFRESH_TOKEN'] = new_refresh_token
+
+        # Update the .env file with new tokens
+        with open('.env', 'r') as file:
+            lines = file.readlines()
+
+        with open('.env', 'w') as file:
+            for line in lines:
+                if line.startswith('BOX_ACCESS_TOKEN'):
+                    file.write(f"BOX_ACCESS_TOKEN={new_access_token}\n")
+                elif line.startswith('BOX_REFRESH_TOKEN'):
+                    file.write(f"BOX_REFRESH_TOKEN={new_refresh_token}\n")
+                else:
+                    file.write(line)
+
         print("Tokens refreshed and stored successfully.")
 
     # Create and return the OAuth2 client
@@ -36,5 +52,5 @@ def get_oauth2_client():
         client_secret=client_secret,
         access_token=access_token,
         refresh_token=refresh_token,
-        store_tokens=store_tokens
+        store_tokens=store_tokens  # Handles token updates
     )
