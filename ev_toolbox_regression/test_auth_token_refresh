@@ -1,15 +1,24 @@
-from token_manager import get_oauth2_client
-from boxsdk import Client
+import os
+from boxsdk import OAuth2
+from dotenv import load_dotenv
 
-def test_token_manager():
-    oauth2 = get_oauth2_client()
-    client = Client(oauth2)
+load_dotenv()
 
-    try:
-        user = client.user().get()
-        print(f"Authenticated as: {user.name} (ID: {user.id})")
-    except Exception as e:
-        print(f"Authentication failed: {e}")
 
-if __name__ == "__main__":
-    test_token_manager()
+CLIENT_ID = os.getenv("BOX_CLIENT_ID")
+CLIENT_SECRET = os.getenv("BOX_CLIENT_SECRET")
+REDIRECT_URI = 'http://localhost:8080'
+
+oauth2 = OAuth2(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+auth_url, csrf_token = oauth2.get_authorization_url(REDIRECT_URI)
+print(f"Authorize the app by visiting this URL: {auth_url}")
+
+# After authorizing, paste the code from the redirect URL
+authorization_code = input("Enter the authorization code: ")
+
+try:
+    access_token, refresh_token = oauth2.authenticate(authorization_code)
+    print(f"Access Token: {access_token}")
+    print(f"Refresh Token: {refresh_token}")
+except Exception as e:
+    print(f"Error during token generation: {e}")
