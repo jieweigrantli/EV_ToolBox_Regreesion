@@ -1,6 +1,8 @@
 from token_manager import get_oauth2_client
 from boxsdk import Client
+from boxsdk.object.file import File
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
@@ -33,8 +35,30 @@ def download_file_from_box(client, file_id, download_path):
         raise
 
 def upload_file_to_box(client, folder_id, file_path):
-    """Upload a file to Box."""
+    """
+    Upload a file to Box, overwriting the existing file if it exists.
+
+    Args:
+        client (Client): Authenticated Box client.
+        folder_id (str): ID of the Box folder to upload the file to.
+        file_path (str): Local path of the file to upload.
+
+    Returns:
+        file: The uploaded file object.
+    """
     folder = client.folder(folder_id).get()
-    file_name = file_path.split('/')[-1]
-    uploaded_file = folder.upload(file_path, file_name)
+    file_name = os.path.basename(file_path)
+
+    # Check if a file with the same name already exists
+    existing_files = folder.get_items()
+    for item in existing_files:
+        if item.name == file_name:
+            print(f"File with name '{file_name}' already exists. Overwriting...")
+            existing_file = client.file(item.id).get()
+            existing_file.delete()
+            break
+
+    # Upload the file
+    uploaded_file = folder.upload(file_path)
+    print(f"File uploaded successfully: {uploaded_file.name}")
     return uploaded_file
