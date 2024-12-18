@@ -84,18 +84,28 @@ python main.py
 
 The workflow performs the following steps:
 	1.	Authenticate with Box.
+
 	2.	Download datasets specified in BOX_FILE_IDS.
+
 	3.	Combine the datasets using the No column as the key.
+
 	4.	Perform regression analysis:
+
 	    • Outputs regression coefficients as a CSV (**'reg_coefficients.csv'**).
+
 	    • Displays model statistics (R², MSE, RMSE) in the terminal.
-	5.	Upload the results back to the Box folder specified in **'BOX_OUTPUT_FOLDER_ID'**$.
+
+	5.	Upload the results back to the Box folder specified in **'BOX_OUTPUT_FOLDER_ID'**.
+
 
 ### 2. Reauthorize the Application
 
 If tokens expire, the script will prompt you to reauthorize the application:
+
 	1.	Follow the provided authorization URL.
+
     2.  Log in your Box account, click "Grant Access".
+
 	3.	Paste the received authorization code (at the end of link of the redicted page, after "**'code='**") into the terminal.
 
 ---
